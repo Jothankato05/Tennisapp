@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/app_store.dart';
 import '../../models/match_record.dart';
 import '../../theme.dart';
+import '../../util/device.dart';
 import '../../util/format.dart';
 import '../../widgets/common.dart';
 import '../../widgets/match_widgets.dart';
@@ -43,13 +43,12 @@ class MatchDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Match'),
         actions: [
-          IconButton(
-            tooltip: 'Copy result',
-            icon: const Icon(Icons.copy_all_outlined),
-            onPressed: () async {
-              await Clipboard.setData(ClipboardData(text: _shareText(m)));
-              if (context.mounted) showSnack(context, 'Result copied — paste it into WhatsApp or your group chat');
-            },
+          Builder(
+            builder: (btn) => IconButton(
+              tooltip: 'Share result',
+              icon: const Icon(Icons.share_outlined),
+              onPressed: () => shareText(btn, _shareText(m)),
+            ),
           ),
           IconButton(
             tooltip: 'Delete match',

@@ -7,6 +7,7 @@ import '../../models/live_match.dart';
 import '../../models/match_record.dart';
 import '../../scoring/tennis_scorer.dart';
 import '../../theme.dart';
+import '../../util/device.dart';
 import '../../widgets/common.dart';
 import '../../widgets/match_widgets.dart';
 import 'match_detail_screen.dart';
@@ -21,6 +22,18 @@ class LiveMatchScreen extends StatefulWidget {
 class _LiveMatchScreenState extends State<LiveMatchScreen> {
   String? _banner;
   int _bannerSeq = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    keepScreenOn(true);
+  }
+
+  @override
+  void dispose() {
+    keepScreenOn(false);
+    super.dispose();
+  }
 
   void _play(LiveMatch live, PointEvent e) {
     final store = context.read<AppStore>();

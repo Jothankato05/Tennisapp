@@ -3,17 +3,38 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../data/app_store.dart';
+import '../util/device.dart';
 import '../widgets/common.dart';
 import 'ladder/player_form_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
-  Future<void> _export(BuildContext context) async {
+  Future<void> _restore(BuildContext context, String raw) async {
     final store = context.read<AppStore>();
-    await Clipboard.setData(ClipboardData(text: store.exportJson()));
-    if (context.mounted) {
-      showSnack(context, 'Backup copied. Paste it into a note, email or chat to keep it safe or share it.');
+    final ok = await confirm(
+      context,
+      title: 'Replace all data?',
+      message: 'Everything on this phone will be replaced by the backup. This cannot be undone.',
+      confirmLabel: 'Restore',
+      destructive: true,
+    );
+    if (!ok || !context.mounted) return;
+    try {
+      store.importJson(raw);
+      showSnack(context, 'Backup restored');
+    } on FormatException catch (e) {
+      showSnack(context, e.message);
+    }
+  }
+
+  Future<void> _importFile(BuildContext context) async {
+    try {
+      final raw = await pickBackupFile();
+      if (raw == null || !context.mounted) return;
+      await _restore(context, raw);
+    } catch (_) {
+      if (context.mounted) showSnack(context, 'Could not open that file');
     }
   }
 
@@ -29,7 +50,7 @@ class SettingsScreen extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Paste a Veritas Tennis backup. This replaces ALL data on this phone.'),
+            const Text('Paste the text of a Veritas Tennis backup.'),
             const SizedBox(height: 12),
             TextField(
               controller: controller,
@@ -46,12 +67,7 @@ class SettingsScreen extends StatelessWidget {
     );
     controller.dispose();
     if (raw == null || raw.trim().isEmpty || !context.mounted) return;
-    try {
-      context.read<AppStore>().importJson(raw);
-      showSnack(context, 'Backup restored');
-    } on FormatException catch (e) {
-      showSnack(context, e.message);
-    }
+    await _restore(context, raw);
   }
 
   @override
@@ -87,17 +103,25 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
                 const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.upload_outlined),
-                  title: const Text('Back up / share data'),
-                  subtitle: const Text('Copies everything as text. Send it to a teammate or your club secretary.'),
-                  onTap: () => _export(context),
+                Builder(
+                  builder: (tile) => ListTile(
+                    leading: const Icon(Icons.upload_outlined),
+                    title: const Text('Back up / share data'),
+                    subtitle: const Text('Save a backup file to Drive, or send it to a teammate or the club secretary'),
+                    onTap: () => shareBackupFile(tile, store.exportJson()),
+                  ),
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.download_outlined),
-                  title: const Text('Restore from backup'),
-                  subtitle: const Text('Load data copied from another phone'),
+                  leading: const Icon(Icons.file_open_outlined),
+                  title: const Text('Restore from backup file'),
+                  subtitle: const Text('Load a backup received from another phone'),
+                  onTap: () => _importFile(context),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.content_paste_outlined),
+                  title: const Text('Restore from pasted text'),
                   onTap: () => _import(context),
                 ),
                 const Divider(height: 1),

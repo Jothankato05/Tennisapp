@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/app_store.dart';
 import '../../models/match_record.dart';
+import '../../util/device.dart';
 import '../../util/format.dart';
 import '../../widgets/common.dart';
 import '../../widgets/match_widgets.dart';
@@ -88,29 +88,38 @@ class PlayerScreen extends StatelessWidget {
                       [p.level.label, p.hand.label, if (p.department.isNotEmpty) p.department].join(' · '),
                       style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                     ),
-                    if (p.phone.isNotEmpty)
-                      InkWell(
-                        onTap: () async {
-                          await Clipboard.setData(ClipboardData(text: p.phone));
-                          if (context.mounted) showSnack(context, 'Number copied');
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.phone_outlined, size: 16),
-                              const SizedBox(width: 4),
-                              Text(p.phone),
-                            ],
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
             ],
           ),
           if (p.notes.isNotEmpty) ...[const SizedBox(height: 12), Text(p.notes)],
+          if (p.phone.isNotEmpty && !isMe) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => callNumber(context, p.phone),
+                    icon: const Icon(Icons.phone_outlined),
+                    label: const Text('Call'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => openWhatsApp(
+                      context,
+                      p.phone,
+                      message: 'Hi ${p.firstName}, fancy a game on the Veritas court?',
+                    ),
+                    icon: const Icon(Icons.chat_outlined),
+                    label: const Text('WhatsApp'),
+                  ),
+                ),
+              ],
+            ),
+          ],
           if (!isMe) ...[
             const SizedBox(height: 16),
             Row(

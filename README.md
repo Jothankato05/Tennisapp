@@ -13,11 +13,11 @@ connection, so it works on campus Wi‑Fi, on mobile data, or with no signal at 
 | Tab | What it does |
 | --- | --- |
 | **Home** | Your rating, ladder rank, win–loss record and streak; this week's matches and practice time; recent results, running tournaments and a daily coaching tip. |
-| **Play** | **Live scorekeeper**: tap a side to give them the point. Handles 15‑30‑40, deuce/advantage, no‑ad, 7‑point tiebreaks, 10‑point match tiebreaks, short sets and advantage final sets. Tracks who serves (including the four-player doubles rotation), deuce/ad court, change of ends, break, set and match points, aces, double faults, winners and errors. Undo any point. A match in progress survives the app being closed. You can also **log a result** you played earlier (e.g. `6-4 3-6 7-6(5)`), view full match stats, and copy a result to share on WhatsApp. |
-| **Ladder** | Elo-style campus rankings from singles results between club players. Each player's profile has a rating history chart, win rate, streaks, sets, tiebreaks, break-point conversion, recent form and head‑to‑head records. |
-| **Events** | **Knockout** draws with seeding by rating and byes for top seeds, or **round robins** with a standings table (wins, then set and game difference, then head‑to‑head). Score any fixture live or type the result, and winners move on automatically. Copy a summary to post in the group chat. |
+| **Play** | **Live scorekeeper**: tap a side to give them the point. Handles 15‑30‑40, deuce/advantage, no‑ad, 7‑point tiebreaks, 10‑point match tiebreaks, short sets and advantage final sets. Tracks who serves (including the four-player doubles rotation), deuce/ad court, change of ends, break, set and match points, aces, double faults, winners and errors. Undo any point. The screen stays on while scoring, and a match in progress survives the app being closed. You can also **log a result** you played earlier (e.g. `6-4 3-6 7-6(5)`), view full match stats, and share a result straight to WhatsApp. |
+| **Ladder** | Elo-style campus rankings from singles results between club players. Each player's profile has Call and WhatsApp buttons, a rating history chart, win rate, streaks, sets, tiebreaks, break-point conversion, recent form and head‑to‑head records. |
+| **Events** | **Knockout** draws with seeding by rating and byes for top seeds, or **round robins** with a standings table (wins, then set and game difference, then head‑to‑head). Score any fixture live or type the result, and winners move on automatically. Share the draw and results to the group chat in one tap. |
 | **Train** | 15 drills covering warm-up, groundstrokes, serve and return, net play, footwork and match play, with steps and coaching tips. Includes a practice log with weekly minutes and a day streak, plus a rules guide covering scoring, tiebreaks, serving, doubles, line calls, court etiquette and playing in the heat. |
-| **Settings** | Edit your profile, copy a backup of all data as text (to keep it safe or share it with the club secretary), restore it on another phone, or erase everything. |
+| **Settings** | Edit your profile, save a backup file of all data (to Google Drive, WhatsApp, email…), restore a backup on another phone, or erase everything. |
 
 ## Getting started
 
@@ -39,9 +39,36 @@ flutter build ipa                    # iOS (needs a Mac with Xcode)
 flutter build web --release          # optional web version
 ```
 
-> Release builds are signed with the debug key for now. Before you publish to
-> Google Play, create an upload keystore and set up signing in
-> `android/app/build.gradle.kts` (see the [Flutter docs](https://docs.flutter.dev/deployment/android#signing-the-app)).
+### Automatic builds (GitHub Actions)
+
+Every push runs the analyzer and tests, then builds the APKs and a Play Store
+bundle (`.github/workflows/build.yml`). Download them from the run's
+**Artifacts** on the Actions tab. Pushing a tag such as `v1.0.0` also publishes
+a GitHub Release with the APKs attached, so students can download from one link.
+
+### Signing for the Google Play Store
+
+Without a key, release builds are signed with the debug key. That is fine for
+sending the APK to students directly, but Google Play needs your own upload key:
+
+```bash
+keytool -genkeypair -v -keystore ~/veritas-upload.jks -keyalg RSA -keysize 2048 \
+  -validity 10000 -alias upload
+```
+
+Then create `android/key.properties` (it is git-ignored, so never commit it):
+
+```properties
+storeFile=/home/you/veritas-upload.jks
+storePassword=…
+keyAlias=upload
+keyPassword=…
+```
+
+To have GitHub Actions sign builds, add these repository secrets:
+`ANDROID_KEYSTORE_BASE64` (output of `base64 -w0 veritas-upload.jks`),
+`ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`.
+Keep the keystore and passwords safe: you need the same key for every update.
 
 ## Project layout
 

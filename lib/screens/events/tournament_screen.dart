@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/app_store.dart';
@@ -10,6 +9,7 @@ import '../../models/tournament.dart';
 import '../../scoring/match_format.dart';
 import '../../scoring/set_score.dart';
 import '../../theme.dart';
+import '../../util/device.dart';
 import '../../widgets/common.dart';
 import '../play/match_detail_screen.dart';
 import '../play/new_match_screen.dart';
@@ -35,13 +35,12 @@ class TournamentScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(t.name),
         actions: [
-          IconButton(
-            tooltip: 'Copy summary',
-            icon: const Icon(Icons.copy_all_outlined),
-            onPressed: () async {
-              await Clipboard.setData(ClipboardData(text: _summary(store, t)));
-              if (context.mounted) showSnack(context, 'Summary copied — share it with the players');
-            },
+          Builder(
+            builder: (btn) => IconButton(
+              tooltip: 'Share draw and results',
+              icon: const Icon(Icons.share_outlined),
+              onPressed: () => shareText(btn, _summary(store, t), subject: t.name),
+            ),
           ),
           PopupMenuButton<String>(
             onSelected: (v) async {
