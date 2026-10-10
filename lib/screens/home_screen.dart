@@ -9,6 +9,8 @@ import '../theme.dart';
 import '../util/format.dart';
 import '../widgets/common.dart';
 import '../widgets/match_widgets.dart';
+import '../widgets/sync_widgets.dart';
+import 'club_screen.dart';
 import 'events/events_screen.dart';
 import 'events/tournament_form_screen.dart';
 import 'ladder/player_screen.dart';
@@ -51,6 +53,7 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
+                SyncStatusIcon(onPressed: () => push(const ClubScreen())),
                 IconButton(
                   tooltip: 'Settings',
                   icon: const Icon(Icons.settings_outlined),

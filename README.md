@@ -5,8 +5,10 @@ thing you actually reach for on court: keep score, see your record, settle who
 is top of the campus ladder, run hall and departmental tournaments, and train
 with a plan.
 
-Everything is stored on the phone. It needs no account, server or data
-connection, so it works on campus Wi‑Fi, on mobile data, or with no signal at all.
+Everything works offline on the phone with no account needed. Students who
+**join their club** with a shared code also get one ladder, one set of results
+and the same tournaments on every member's phone, synced in the background
+whenever there is a connection.
 
 ## Features
 
@@ -17,6 +19,7 @@ connection, so it works on campus Wi‑Fi, on mobile data, or with no signal at 
 | **Ladder** | Elo-style campus rankings from singles results between club players. Each player's profile has Call and WhatsApp buttons, a rating history chart, win rate, streaks, sets, tiebreaks, break-point conversion, recent form and head‑to‑head records. |
 | **Events** | **Knockout** draws with seeding by rating and byes for top seeds, or **round robins** with a standings table (wins, then set and game difference, then head‑to‑head). Score any fixture live or type the result, and winners move on automatically. Share the draw and results to the group chat in one tap. |
 | **Train** | 15 drills covering warm-up, groundstrokes, serve and return, net play, footwork and match play, with steps and coaching tips. Includes a practice log with weekly minutes and a day streak, plus a rules guide covering scoring, tiebreaks, serving, doubles, line calls, court etiquette and playing in the heat. |
+| **Club sync** | A captain creates the club once and shares its code (e.g. `KQ7MZ-3HXPA`) in the WhatsApp group. Members join with the code; players, results, the ladder and tournaments sync across everyone's phones, while practice logs stay private. Players with the same name are merged when you join, any other duplicates can be merged from a profile, and logging a result that is already saved triggers a warning so the ladder doesn't count it twice. Pull down on Play, Ladder or Events to sync now. |
 | **Settings** | Edit your profile, save a backup file of all data (to Google Drive, WhatsApp, email…), restore a backup on another phone, or erase everything. |
 
 ## Getting started
@@ -78,10 +81,11 @@ lib/
   scoring/                   Tennis scoring engine (pure Dart, fully tested)
   models/                    Players, matches, live match, tournaments, practice
   logic/                     Elo ratings, player stats, knockout and round-robin draws
-  data/                      AppStore (state + on-device storage), drills, rules guide
+  data/                      AppStore (state + storage), club sync (API + engine), drills, rules guide
   screens/                   home, play/, ladder/, events/, train/, settings
   widgets/                   Shared UI: score table, rating chart, player picker…
-test/                        Engine, logic, storage and end-to-end widget tests
+test/                        Engine, logic, storage, sync and end-to-end widget tests
+supabase/migrations/         Club sync database schema and functions
 ```
 
 ### How scoring works internally
@@ -97,8 +101,26 @@ list, with a result) moves `32 × (1 − expected)` points from loser to winner,
 so upsets earn more. Ratings are recalculated from the full history every time,
 which means deleting or correcting a match always leaves the ladder consistent.
 
+## Club sync backend
+
+Sync runs on a Supabase project (`veritas-tennis`, London region). The schema is
+in `supabase/migrations/`. Clients talk only to four Postgres functions
+(`create_club`, `get_club`, `sync_push`, `sync_pull`). The tables themselves are
+locked to the public API, so the **club code is the credential**: anyone with
+it can read and edit that club's results, and nothing else.
+
+- Records (players, matches, tournaments) are stored as JSON, one row each,
+  last write wins. Deletions are kept as tombstones so they reach every phone.
+- Phones push their unsent changes first, then pull everything changed since
+  their last sync (with a short overlap, so nothing committed out of order is
+  missed). Changes made on a phone that are not yet sent are never overwritten.
+- The app ships with the project URL and publishable key, which are meant to
+  be public. To use another backend, apply the migration there and build with
+  `--dart-define=SUPABASE_URL=… --dart-define=SUPABASE_KEY=…`.
+- Free Supabase projects pause after a week with no activity. If the club takes
+  a long break, restore the project from the Supabase dashboard.
+
 ## Ideas for later
 
-- Optional cloud sync (e.g. Firebase) so the ladder and tournaments are shared live across every player's phone.
 - A court booking or queue board for the campus court.
 - Push reminders for upcoming tournament fixtures.

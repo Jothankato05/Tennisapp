@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:veritas_tennis/app.dart';
 import 'package:veritas_tennis/data/app_store.dart';
+import 'package:veritas_tennis/data/club_api.dart';
+import 'package:veritas_tennis/data/club_sync.dart';
+import 'package:veritas_tennis/main.dart';
 
 void main() {
   testWidgets('onboarding, then score a whole one-set match live', (tester) async {
@@ -12,7 +13,9 @@ void main() {
     addTearDown(tester.view.reset);
     SharedPreferences.setMockInitialValues({});
     final store = await AppStore.load(await SharedPreferences.getInstance());
-    await tester.pumpWidget(ChangeNotifierProvider.value(value: store, child: const VeritasTennisApp()));
+    final sync = ClubSync(store, SupabaseClubApi());
+    addTearDown(sync.dispose);
+    await tester.pumpWidget(AppRoot(store: store, sync: sync));
 
     expect(find.text('Create your player profile'), findsOneWidget);
     await tester.enterText(find.byType(TextFormField).first, 'Ada Obi');

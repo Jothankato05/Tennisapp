@@ -94,7 +94,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Everything is stored on your phone. No sign-up or internet needed.',
+                  'No sign-up needed and it works offline. Playing with a club? Join it with the club code afterwards '
+                  '(Settings › Club sync) to share one ladder.',
                   style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 16),

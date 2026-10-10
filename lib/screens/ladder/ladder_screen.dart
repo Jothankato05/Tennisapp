@@ -5,6 +5,7 @@ import '../../data/app_store.dart';
 import '../../logic/ratings.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
+import '../../widgets/sync_widgets.dart';
 import 'player_form_screen.dart';
 import 'player_screen.dart';
 
@@ -32,7 +33,7 @@ class LadderScreen extends StatelessWidget {
           icon: const Icon(Icons.person_add_alt_1),
           label: const Text('Add player'),
         ),
-        body: const TabBarView(children: [_Rankings(), _Players()]),
+        body: const SyncRefresh(child: TabBarView(children: [_Rankings(), _Players()])),
       ),
     );
   }
@@ -50,6 +51,7 @@ class _Rankings extends StatelessWidget {
     final ladder = store.ladder;
     final theme = Theme.of(context);
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
       children: [
         Card(
@@ -134,6 +136,7 @@ class _PlayersState extends State<_Players> {
         .where((p) => q.isEmpty || p.name.toLowerCase().contains(q) || p.department.toLowerCase().contains(q))
         .toList();
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
       children: [
         TextField(

@@ -7,6 +7,7 @@ import '../../util/device.dart';
 import '../../util/format.dart';
 import '../../widgets/common.dart';
 import '../../widgets/match_widgets.dart';
+import '../../widgets/player_picker.dart';
 import '../../widgets/rating_chart.dart';
 import '../play/log_result_screen.dart';
 import '../play/match_detail_screen.dart';
@@ -44,6 +45,32 @@ class PlayerScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(isMe ? 'My profile' : p.firstName),
         actions: [
+          IconButton(
+            tooltip: 'Same person as…',
+            icon: const Icon(Icons.merge_type),
+            onPressed: () async {
+              final target = await pickParticipant(
+                context,
+                title: 'Who is ${p.firstName} the same person as?',
+                exclude: {p.id},
+                allowGuest: false,
+              );
+              if (target?.playerId == null || !context.mounted) return;
+              final ok = await confirm(
+                context,
+                title: 'Merge ${p.name} into ${target!.name}?',
+                message: isMe
+                    ? 'Your matches and tournament places move to ${target.name}, and that profile becomes yours.'
+                    : '${p.firstName}\'s matches and tournament places move to ${target.name}, and this '
+                          'duplicate profile is removed.',
+                confirmLabel: 'Merge',
+              );
+              if (!ok || !context.mounted) return;
+              Navigator.pop(context);
+              store.mergePlayers(p.id, target.playerId!);
+              showSnack(context, 'Merged into ${target.name}');
+            },
+          ),
           IconButton(
             tooltip: 'Edit',
             icon: const Icon(Icons.edit_outlined),

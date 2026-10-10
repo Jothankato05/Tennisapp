@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../data/app_store.dart';
 import '../util/device.dart';
 import '../widgets/common.dart';
+import 'club_screen.dart';
 import 'ladder/player_form_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -90,6 +91,20 @@ class SettingsScreen extends StatelessWidget {
                     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => PlayerFormScreen(player: me))),
               ),
             ),
+          const SectionHeader('Club'),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.groups_outlined),
+              title: Text(store.club?.name ?? 'Club sync'),
+              subtitle: Text(
+                store.club == null
+                    ? 'Share one ladder and tournaments with your club'
+                    : 'Code ${store.club!.code} · tap to manage',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ClubScreen())),
+            ),
+          ),
           const SectionHeader('Your data'),
           Card(
             child: Column(
@@ -151,7 +166,7 @@ class SettingsScreen extends StatelessWidget {
           const Card(
             child: ListTile(
               leading: Icon(Icons.sports_tennis),
-              title: Text('Veritas Tennis 1.0'),
+              title: Text('Veritas Tennis 1.1'),
               subtitle: Text(
                 'Built for the tennis players of Veritas University, Abuja. Works fully offline — '
                 'no account or data connection needed.',

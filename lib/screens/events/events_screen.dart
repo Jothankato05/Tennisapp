@@ -7,6 +7,7 @@ import '../../models/tournament.dart';
 import '../../theme.dart';
 import '../../util/format.dart';
 import '../../widgets/common.dart';
+import '../../widgets/sync_widgets.dart';
 import 'tournament_form_screen.dart';
 import 'tournament_screen.dart';
 
@@ -25,27 +26,30 @@ class EventsScreen extends StatelessWidget {
         icon: const Icon(Icons.add),
         label: const Text('New tournament'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
-        children: [
-          Text(
-            'Run hall, departmental or club tournaments: build the draw, score matches live and share results.',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-          ),
-          const SizedBox(height: 12),
-          if (store.tournaments.isEmpty)
-            const EmptyState(
-              icon: Icons.emoji_events_outlined,
-              title: 'No tournaments yet',
-              message: 'Create a knockout or round robin with players from your club list.',
-            )
-          else
-            for (final t in store.tournaments)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: TournamentCard(tournament: t),
-              ),
-        ],
+      body: SyncRefresh(
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+          children: [
+            Text(
+              'Run hall, departmental or club tournaments: build the draw, score matches live and share results.',
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 12),
+            if (store.tournaments.isEmpty)
+              const EmptyState(
+                icon: Icons.emoji_events_outlined,
+                title: 'No tournaments yet',
+                message: 'Create a knockout or round robin with players from your club list.',
+              )
+            else
+              for (final t in store.tournaments)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: TournamentCard(tournament: t),
+                ),
+          ],
+        ),
       ),
     );
   }

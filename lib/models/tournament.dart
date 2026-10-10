@@ -69,6 +69,24 @@ class Tournament {
   /// Real matches whose two players are known.
   int get readyCount => fixtures.where((f) => f.isReady).length;
 
+  /// Replaces a player id everywhere in the draw. Returns true if anything changed.
+  bool replacePlayer(String from, String to) {
+    var changed = false;
+    for (var i = 0; i < playerIds.length; i++) {
+      if (playerIds[i] == from) {
+        playerIds[i] = to;
+        changed = true;
+      }
+    }
+    for (final f in fixtures) {
+      if (f.a == from) f.a = to;
+      if (f.b == from) f.b = to;
+      if (f.winner == from) f.winner = to;
+      changed |= f.a == to || f.b == to;
+    }
+    return changed;
+  }
+
   Fixture? fixtureById(String fixtureId) {
     for (final f in fixtures) {
       if (f.id == fixtureId) return f;

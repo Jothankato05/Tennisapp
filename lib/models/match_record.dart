@@ -78,6 +78,47 @@ class MatchRecord {
 
   String scoreFor(int side) => scoreLine(sets, side: side);
 
+  /// Same match with player ids replaced (used when merging duplicate players).
+  MatchRecord withPlayerId(String from, String to, String toName) {
+    List<Participant> swap(List<Participant> side) => [
+      for (final p in side) p.playerId == from ? Participant(playerId: to, name: toName) : p,
+    ];
+    return MatchRecord(
+      id: id,
+      playedAt: playedAt,
+      format: format,
+      sideA: swap(sideA),
+      sideB: swap(sideB),
+      sets: sets,
+      winnerSide: winnerSide,
+      completed: completed,
+      stats: stats,
+      durationMinutes: durationMinutes,
+      notes: notes,
+      source: source,
+      tournamentId: tournamentId,
+    );
+  }
+
+  /// True when [other] looks like the same result recorded twice (e.g. by
+  /// both players): same day, same players, same score.
+  bool sameResultAs(MatchRecord other) {
+    String key(List<Participant> side) =>
+        (side.map((p) => p.playerId ?? 'guest:${p.name.toLowerCase()}').toList()..sort()).join('+');
+    final sameDay =
+        playedAt.year == other.playedAt.year &&
+        playedAt.month == other.playedAt.month &&
+        playedAt.day == other.playedAt.day;
+    if (!sameDay) return false;
+    if (key(sideA) == key(other.sideA) && key(sideB) == key(other.sideB)) {
+      return scoreFor(0) == other.scoreFor(0);
+    }
+    if (key(sideA) == key(other.sideB) && key(sideB) == key(other.sideA)) {
+      return scoreFor(0) == other.scoreFor(1);
+    }
+    return false;
+  }
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'playedAt': playedAt.toIso8601String(),

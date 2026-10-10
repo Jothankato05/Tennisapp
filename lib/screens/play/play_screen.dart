@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../data/app_store.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
+import '../../widgets/sync_widgets.dart';
 import '../../widgets/match_widgets.dart';
 import 'live_match_screen.dart';
 import 'log_result_screen.dart';
@@ -35,73 +36,76 @@ class _PlayScreenState extends State<PlayScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Play')),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _ActionCard(
-                  icon: Icons.scoreboard,
-                  title: store.liveMatch != null ? 'Resume match' : 'Score live',
-                  subtitle: 'Keep score point by point on court',
-                  color: VeritasColors.navy,
-                  onTap: () => openNewMatch(context),
+      body: SyncRefresh(
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _ActionCard(
+                    icon: Icons.scoreboard,
+                    title: store.liveMatch != null ? 'Resume match' : 'Score live',
+                    subtitle: 'Keep score point by point on court',
+                    color: VeritasColors.navy,
+                    onTap: () => openNewMatch(context),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _ActionCard(
-                  icon: Icons.edit_note,
-                  title: 'Log result',
-                  subtitle: 'Already played? Enter the score',
-                  color: VeritasColors.court,
-                  onTap: () =>
-                      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LogResultScreen())),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _ActionCard(
+                    icon: Icons.edit_note,
+                    title: 'Log result',
+                    subtitle: 'Already played? Enter the score',
+                    color: VeritasColors.court,
+                    onTap: () =>
+                        Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LogResultScreen())),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Text(
-                'Match history',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              const Spacer(),
-              SegmentedButton<bool>(
-                showSelectedIcon: false,
-                style: const ButtonStyle(visualDensity: VisualDensity.compact),
-                segments: const [
-                  ButtonSegment(value: true, label: Text('Mine')),
-                  ButtonSegment(value: false, label: Text('All')),
-                ],
-                selected: {_mineOnly},
-                onSelectionChanged: (s) => setState(() => _mineOnly = s.first),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          if (matches.isEmpty)
-            const EmptyState(
-              icon: Icons.sports_tennis,
-              title: 'No matches yet',
-              message: 'Score your next match live, or log one you have already played.',
-            )
-          else
-            for (final m in matches)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: MatchCard(
-                  match: m,
-                  perspectiveId: meId,
-                  onTap: () =>
-                      Navigator.of(context)
-                          .push(MaterialPageRoute<void>(builder: (_) => MatchDetailScreen(matchId: m.id))),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Text(
+                  'Match history',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                 ),
-              ),
-        ],
+                const Spacer(),
+                SegmentedButton<bool>(
+                  showSelectedIcon: false,
+                  style: const ButtonStyle(visualDensity: VisualDensity.compact),
+                  segments: const [
+                    ButtonSegment(value: true, label: Text('Mine')),
+                    ButtonSegment(value: false, label: Text('All')),
+                  ],
+                  selected: {_mineOnly},
+                  onSelectionChanged: (s) => setState(() => _mineOnly = s.first),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            if (matches.isEmpty)
+              const EmptyState(
+                icon: Icons.sports_tennis,
+                title: 'No matches yet',
+                message: 'Score your next match live, or log one you have already played.',
+              )
+            else
+              for (final m in matches)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: MatchCard(
+                    match: m,
+                    perspectiveId: meId,
+                    onTap: () =>
+                        Navigator.of(context)
+                            .push(MaterialPageRoute<void>(builder: (_) => MatchDetailScreen(matchId: m.id))),
+                  ),
+                ),
+          ],
+        ),
       ),
     );
   }

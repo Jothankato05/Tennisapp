@@ -48,7 +48,7 @@ class TournamentScreen extends StatelessWidget {
                 final name = await _rename(context, t.name);
                 if (name != null && name.isNotEmpty) {
                   t.name = name;
-                  store.touch();
+                  store.updateTournament(t);
                 }
               } else if (v == 'delete') {
                 final ok = await confirm(

@@ -66,7 +66,7 @@ class _LogResultScreenState extends State<LogResultScreen> {
     if (picked != null) setState(() => side[i] = picked);
   }
 
-  void _save() {
+  Future<void> _save() async {
     final players = [..._a.take(_perSide), ..._b.take(_perSide)];
     String? problem;
     if (players.any((p) => p == null)) {
@@ -84,19 +84,30 @@ class _LogResultScreenState extends State<LogResultScreen> {
     }
     final sets = _sets!;
     final bestOf = sets.length <= 1 ? 1 : (sets.length <= 3 ? 3 : 5);
-    context.read<AppStore>().addMatch(
-      MatchRecord(
-        id: newId(),
-        playedAt: _date,
-        format: MatchFormat(bestOf: bestOf, doubles: _doubles),
-        sideA: [for (final p in _a.take(_perSide)) p!],
-        sideB: [for (final p in _b.take(_perSide)) p!],
-        sets: sets,
-        winnerSide: _winner,
-        completed: !_retired,
-        notes: _notes.text.trim(),
-      ),
+    final store = context.read<AppStore>();
+    final record = MatchRecord(
+      id: newId(),
+      playedAt: _date,
+      format: MatchFormat(bestOf: bestOf, doubles: _doubles),
+      sideA: [for (final p in _a.take(_perSide)) p!],
+      sideB: [for (final p in _b.take(_perSide)) p!],
+      sets: sets,
+      winnerSide: _winner,
+      completed: !_retired,
+      notes: _notes.text.trim(),
     );
+    if (store.findDuplicate(record) != null) {
+      final ok = await confirm(
+        context,
+        title: 'Already recorded?',
+        message:
+            'A match between these players with the same score on the same day is already saved '
+            '(perhaps your opponent logged it). Saving again would count it twice on the ladder.',
+        confirmLabel: 'Save anyway',
+      );
+      if (!ok || !mounted) return;
+    }
+    store.addMatch(record);
     showSnack(context, 'Result saved');
     Navigator.pop(context);
   }
