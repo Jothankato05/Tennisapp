@@ -33,11 +33,15 @@ class SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 20, 4, 8),
+      padding: const EdgeInsets.fromLTRB(2, 24, 2, 10),
       child: Row(
         children: [
           Expanded(
-            child: Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.2),
+            ),
           ),
           if (action != null) TextButton(onPressed: onAction, child: Text(action!)),
         ],
@@ -47,33 +51,41 @@ class SectionHeader extends StatelessWidget {
 }
 
 class EmptyState extends StatelessWidget {
-  const EmptyState({super.key, required this.icon, required this.title, required this.message, this.action});
+  const EmptyState({super.key, required this.icon, required this.title, this.message, this.action});
 
   final IconData icon;
   final String title;
-  final String message;
+  final String? message;
   final Widget? action;
 
   @override
   Widget build(BuildContext context) {
     final muted = Theme.of(context).colorScheme.onSurfaceVariant;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            Icon(icon, size: 40, color: muted),
-            const SizedBox(height: 12),
-            Text(title, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 12),
+      child: Column(
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 28, color: muted),
+          ),
+          const SizedBox(height: 14),
+          Text(title, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+          if (message != null) ...[
             const SizedBox(height: 4),
             Text(
-              message,
+              message!,
               style: TextStyle(color: muted),
               textAlign: TextAlign.center,
             ),
-            if (action != null) ...[const SizedBox(height: 16), action!],
           ],
-        ),
+          if (action != null) ...[const SizedBox(height: 18), action!],
+        ],
       ),
     );
   }
@@ -153,13 +165,10 @@ class FormDots extends StatelessWidget {
         for (final won in form.take(max))
           Container(
             margin: const EdgeInsets.only(right: 4),
-            width: 22,
-            height: 22,
+            width: 24,
+            height: 24,
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: won ? VeritasColors.win : VeritasColors.loss,
-              borderRadius: BorderRadius.circular(6),
-            ),
+            decoration: BoxDecoration(color: won ? VeritasColors.win : VeritasColors.loss, shape: BoxShape.circle),
             child: Text(
               won ? 'W' : 'L',
               style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800),

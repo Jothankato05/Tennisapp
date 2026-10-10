@@ -77,15 +77,7 @@ class _DrillsTabState extends State<_DrillsTab> {
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 title: Text(d.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    '${d.category.label} · ${d.minutes} min · ${d.players} player${d.players == '1' ? '' : 's'}\n${d.summary}',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                isThreeLine: true,
+                subtitle: Text('${d.category.label} · ${d.minutes} min'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => DrillScreen(drill: d))),
               ),
@@ -124,12 +116,7 @@ class _LogTab extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          if (sessions.isEmpty)
-            const EmptyState(
-              icon: Icons.fitness_center,
-              title: 'No practice logged',
-              message: 'Log each session to see your training time add up and keep your streak going.',
-            ),
+          if (sessions.isEmpty) const EmptyState(icon: Icons.fitness_center, title: 'No practice logged'),
           for (final s in sessions)
             Padding(
               padding: const EdgeInsets.only(bottom: 10),

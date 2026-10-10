@@ -16,28 +16,19 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _form = GlobalKey<FormState>();
   final _name = TextEditingController();
-  final _department = TextEditingController();
   SkillLevel _level = SkillLevel.beginner;
   Handedness _hand = Handedness.right;
 
   @override
   void dispose() {
     _name.dispose();
-    _department.dispose();
     super.dispose();
   }
 
   void _start() {
     if (!_form.currentState!.validate()) return;
     context.read<AppStore>().setMe(
-      Player(
-        id: newId(),
-        name: _name.text.trim(),
-        level: _level,
-        hand: _hand,
-        department: _department.text.trim(),
-        createdAt: DateTime.now(),
-      ),
+      Player(id: newId(), name: _name.text.trim(), level: _level, hand: _hand, createdAt: DateTime.now()),
     );
   }
 
@@ -45,115 +36,101 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: VeritasColors.navy,
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [VeritasColors.navy, Color(0xFF1B4A7A)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+        bottom: false,
+        child: Column(
+          children: [
+            Expanded(
+              flex: 4,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(32, 24, 32, 12),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Image.asset('assets/brand/racqueteers_cutout.png', filterQuality: FilterQuality.high),
                     ),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const CircleAvatar(
-                        radius: 28,
-                        backgroundColor: VeritasColors.ball,
-                        child: Icon(Icons.sports_tennis, color: VeritasColors.navy, size: 32),
+                    const SizedBox(height: 18),
+                    const Text(
+                      'Veritas Tennis',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.6,
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Veritas Tennis',
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'The tennis companion for Veritas University players. Keep score on court, track your '
-                        'stats, climb the campus ladder, run tournaments and train smarter.',
-                        style: TextStyle(color: Color(0xFFD5DEEA), fontSize: 15, height: 1.4),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Score. Compete. Improve.',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.65), fontSize: 15),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  'Create your player profile',
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'No sign-up needed and it works offline. Playing with a club? Join it with the club code afterwards '
-                  '(Settings › Club sync) to share one ladder.',
-                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-                ),
-                const SizedBox(height: 16),
-                Form(
-                  key: _form,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _name,
-                        textCapitalization: TextCapitalization.words,
-                        decoration: const InputDecoration(
-                          labelText: 'Your name',
-                          prefixIcon: Icon(Icons.person_outline),
-                        ),
-                        validator: (v) => (v ?? '').trim().length < 2 ? 'Enter your name' : null,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _department,
-                        textCapitalization: TextCapitalization.words,
-                        decoration: const InputDecoration(
-                          labelText: 'Department / level (optional)',
-                          hintText: 'e.g. Computer Science, 200L',
-                          prefixIcon: Icon(Icons.school_outlined),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<SkillLevel>(
-                        isExpanded: true,
-                        initialValue: _level,
-                        decoration: const InputDecoration(
-                          labelText: 'Playing level',
-                          prefixIcon: Icon(Icons.trending_up),
-                        ),
-                        items: [for (final l in SkillLevel.values) DropdownMenuItem(value: l, child: Text(l.label))],
-                        onChanged: (v) => setState(() => _level = v!),
-                      ),
-                      const SizedBox(height: 12),
-                      SegmentedButton<Handedness>(
-                        segments: [for (final h in Handedness.values) ButtonSegment(value: h, label: Text(h.label))],
-                        selected: {_hand},
-                        onSelectionChanged: (s) => setState(() => _hand = s.first),
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: _start,
-                          icon: const Icon(Icons.arrow_forward),
-                          label: const Text("Let's play"),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: theme.scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: Form(
+                      key: _form,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text('Welcome', style: theme.textTheme.headlineSmall),
+                            const SizedBox(height: 18),
+                            TextFormField(
+                              controller: _name,
+                              textCapitalization: TextCapitalization.words,
+                              decoration: const InputDecoration(hintText: 'Your name'),
+                              validator: (v) => (v ?? '').trim().length < 2 ? 'Enter your name' : null,
+                            ),
+                            const SizedBox(height: 16),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                for (final l in SkillLevel.values)
+                                  ChoiceChip(
+                                    label: Text(l.label),
+                                    selected: _level == l,
+                                    onSelected: (_) => setState(() => _level = l),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            SegmentedButton<Handedness>(
+                              showSelectedIcon: false,
+                              segments: const [
+                                ButtonSegment(value: Handedness.right, label: Text('Right-handed')),
+                                ButtonSegment(value: Handedness.left, label: Text('Left-handed')),
+                              ],
+                              selected: {_hand},
+                              onSelectionChanged: (s) => setState(() => _hand = s.first),
+                            ),
+                            const SizedBox(height: 24),
+                            FilledButton(onPressed: _start, child: const Text("Let's play")),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../app.dart';
 import '../data/app_store.dart';
-import '../data/drills.dart';
 import '../logic/bracket.dart';
 import '../theme.dart';
 import '../util/format.dart';
@@ -40,16 +39,21 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
           children: [
             Row(
               children: [
+                Image.asset('assets/brand/racqueteers_cutout.png', height: 40, filterQuality: FilterQuality.high),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(greeting(), style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
-                      Text(me.firstName, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                      Text(
+                        greeting(),
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      ),
+                      Text(me.firstName, style: theme.textTheme.titleLarge),
                     ],
                   ),
                 ),
@@ -61,7 +65,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 18),
             _ProfileHero(
               rating: store.ratingOf(me.id),
               rank: rank,
@@ -69,75 +73,61 @@ class HomeScreen extends StatelessWidget {
               streak: stats.streak,
               onTap: () => push(PlayerScreen(playerId: me.id)),
             ),
-            const SectionHeader('Quick actions'),
-            GridView.count(
-              crossAxisCount: 4,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 0.85,
+            const SizedBox(height: 22),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _QuickAction(
-                  icon: Icons.scoreboard_outlined,
-                  label: store.liveMatch == null ? 'Score match' : 'Resume',
+                  icon: store.liveMatch == null ? Icons.scoreboard_outlined : Icons.play_arrow_rounded,
+                  label: store.liveMatch == null ? 'Score' : 'Resume',
+                  primary: true,
                   onTap: () => openNewMatch(context),
                 ),
-                _QuickAction(icon: Icons.edit_note, label: 'Log result', onTap: () => push(const LogResultScreen())),
+                _QuickAction(icon: Icons.edit_note_rounded, label: 'Log', onTap: () => push(const LogResultScreen())),
                 _QuickAction(
-                  icon: Icons.fitness_center,
-                  label: 'Log practice',
+                  icon: Icons.fitness_center_rounded,
+                  label: 'Practice',
                   onTap: () => push(const PracticeFormScreen()),
                 ),
                 _QuickAction(
                   icon: Icons.emoji_events_outlined,
-                  label: 'New event',
+                  label: 'Event',
                   onTap: () => push(const TournamentFormScreen()),
                 ),
               ],
             ),
-            const SectionHeader('This week'),
-            StatGrid(
-              children: [
-                StatTile(value: '$matchesThisWeek', label: 'Matches', icon: Icons.sports_tennis),
-                StatTile(
-                  value: fmtMinutes(store.practiceMinutesThisWeek()),
-                  label: 'Practice',
-                  icon: Icons.timer_outlined,
+            const SizedBox(height: 22),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Row(
+                  children: [
+                    _WeekStat(value: '$matchesThisWeek', label: 'Matches'),
+                    _divider(context),
+                    _WeekStat(value: fmtMinutes(store.practiceMinutesThisWeek()), label: 'Practice'),
+                    _divider(context),
+                    _WeekStat(value: '${store.activeDayStreak()}', label: 'Day streak'),
+                  ],
                 ),
-                StatTile(
-                  value: '${store.activeDayStreak()}',
-                  label: 'Day streak',
-                  icon: Icons.local_fire_department_outlined,
-                ),
-              ],
+              ),
             ),
             SectionHeader(
-              'Recent matches',
+              'Recent',
               action: recent.isEmpty ? null : 'See all',
               onAction: () => TabSwitcher.of(context, AppTab.play),
             ),
-            if (stats.form.isNotEmpty) ...[
-              Row(
-                children: [
-                  Text('Form ', style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
-                  FormDots(stats.form),
-                ],
-              ),
-              const SizedBox(height: 10),
-            ],
             if (recent.isEmpty)
               EmptyState(
                 icon: Icons.sports_tennis,
-                title: 'Ready for your first match?',
-                message: 'Score it live on court and your stats and ladder rating update automatically.',
+                title: 'No matches yet',
                 action: FilledButton.icon(
                   onPressed: () => openNewMatch(context),
-                  icon: const Icon(Icons.play_arrow),
+                  icon: const Icon(Icons.play_arrow_rounded),
                   label: const Text('Start a match'),
                 ),
               )
-            else
+            else ...[
+              if (stats.form.isNotEmpty) ...[FormDots(stats.form), const SizedBox(height: 12)],
               for (final m in recent)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
@@ -147,18 +137,41 @@ class HomeScreen extends StatelessWidget {
                     onTap: () => push(MatchDetailScreen(matchId: m.id)),
                   ),
                 ),
+            ],
             if (activeEvents.isNotEmpty) ...[
-              SectionHeader('Tournaments', action: 'See all', onAction: () => TabSwitcher.of(context, AppTab.events)),
+              SectionHeader('Events', action: 'See all', onAction: () => TabSwitcher.of(context, AppTab.events)),
               for (final t in activeEvents)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: TournamentCard(tournament: t),
                 ),
             ],
-            const SectionHeader('Coach\'s tip'),
-            _TipCard(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _divider(BuildContext context) =>
+      Container(width: 1, height: 32, color: Theme.of(context).colorScheme.outlineVariant);
+}
+
+class _WeekStat extends StatelessWidget {
+  const _WeekStat({required this.value, required this.label});
+
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Expanded(
+      child: Column(
+        children: [
+          Text(value, style: theme.textTheme.titleLarge?.copyWith(fontSize: 20)),
+          const SizedBox(height: 2),
+          Text(label, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+        ],
       ),
     );
   }
@@ -183,63 +196,64 @@ class _ProfileHero extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget item(String value, String label) => Expanded(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FittedBox(
-            child: Text(
-              value,
-              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800),
-            ),
+          Text(
+            value,
+            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
           ),
-          Text(label, style: const TextStyle(color: Color(0xFFB9C7DA), fontSize: 12)),
+          const SizedBox(height: 2),
+          Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12)),
         ],
       ),
     );
     return Material(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(28),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Ink(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [VeritasColors.navy, Color(0xFF1B4A7A)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
+          decoration: const BoxDecoration(gradient: VeritasColors.heroGradient),
           child: Stack(
             children: [
-              const Positioned(
-                right: -30,
-                top: -30,
-                child: CircleAvatar(radius: 60, backgroundColor: Color(0x22D9E84A)),
+              Positioned(
+                right: -36,
+                top: -20,
+                bottom: -20,
+                child: Opacity(
+                  opacity: 0.07,
+                  child: Image.asset('assets/brand/racqueteers_cutout.png', fit: BoxFit.contain),
+                ),
               ),
               Padding(
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.sports_tennis, color: VeritasColors.ball, size: 18),
-                        SizedBox(width: 6),
-                        Text(
-                          'VERITAS UNIVERSITY TENNIS',
-                          style: TextStyle(
-                            color: VeritasColors.ball,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      'RATING',
+                      style: TextStyle(
+                        color: VeritasColors.ball.withValues(alpha: 0.9),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 2,
+                      ),
                     ),
-                    const SizedBox(height: 16),
+                    Text(
+                      '$rating',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 46,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -1.5,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
                     Row(
                       children: [
-                        item('$rating', 'Rating'),
                         item(rank == null ? '—' : '#$rank', 'Ladder'),
-                        item(record, 'Win–loss'),
+                        item(record, 'Won–lost'),
                         item(streak == 0 ? '—' : '${streak > 0 ? 'W' : 'L'}${streak.abs()}', 'Streak'),
                       ],
                     ),
@@ -255,61 +269,42 @@ class _ProfileHero extends StatelessWidget {
 }
 
 class _QuickAction extends StatelessWidget {
-  const _QuickAction({required this.icon, required this.label, required this.onTap});
+  const _QuickAction({required this.icon, required this.label, required this.onTap, this.primary = false});
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool primary;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(6),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: VeritasColors.ball,
-                child: Icon(icon, color: VeritasColors.navy, size: 22),
+    final dark = theme.brightness == Brightness.dark;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: Column(
+          children: [
+            Container(
+              width: 62,
+              height: 62,
+              decoration: BoxDecoration(
+                color: primary ? VeritasColors.ball : theme.colorScheme.surface,
+                shape: BoxShape.circle,
+                border: primary ? null : Border.all(color: theme.colorScheme.outlineVariant),
               ),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+              child: Icon(
+                icon,
+                size: 26,
+                color: primary ? VeritasColors.navy : (dark ? Colors.white : VeritasColors.navy),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 8),
+            Text(label, style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600)),
+          ],
         ),
-      ),
-    );
-  }
-}
-
-class _TipCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final tips = [
-      for (final d in drills)
-        for (final t in d.tips) (t, d),
-    ];
-    final now = DateTime.now();
-    final dayOfYear = now.difference(DateTime(now.year)).inDays;
-    final (tip, drill) = tips[dayOfYear % tips.length];
-    return Card(
-      color: VeritasColors.ball.withValues(alpha: 0.25),
-      child: ListTile(
-        leading: const Icon(Icons.lightbulb_outline),
-        title: Text(tip),
-        subtitle: Text('From the drill: ${drill.name}'),
-        onTap: () => TabSwitcher.of(context, AppTab.train),
       ),
     );
   }

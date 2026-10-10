@@ -8,11 +8,22 @@ import 'screens/ladder/ladder_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/play/live_match_screen.dart';
 import 'screens/play/play_screen.dart';
+import 'screens/splash_screen.dart';
 import 'screens/train/train_screen.dart';
 import 'theme.dart';
 
-class VeritasTennisApp extends StatelessWidget {
-  const VeritasTennisApp({super.key});
+class VeritasTennisApp extends StatefulWidget {
+  const VeritasTennisApp({super.key, this.showSplash = true});
+
+  /// Plays the opening animation over the first screen.
+  final bool showSplash;
+
+  @override
+  State<VeritasTennisApp> createState() => _VeritasTennisAppState();
+}
+
+class _VeritasTennisAppState extends State<VeritasTennisApp> {
+  late bool _splash = widget.showSplash;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +34,12 @@ class VeritasTennisApp extends StatelessWidget {
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
       home: hasProfile ? const HomeShell() : const OnboardingScreen(),
+      builder: (context, child) => Stack(
+        children: [
+          child!,
+          if (_splash) SplashScreen(onDone: () => setState(() => _splash = false)),
+        ],
+      ),
     );
   }
 }
@@ -73,17 +90,31 @@ class _HomeShellState extends State<HomeShell> {
             ),
             if (live != null)
               Material(
-                color: Theme.of(context).colorScheme.secondaryContainer,
-                child: SafeArea(
-                  top: false,
-                  bottom: false,
-                  child: ListTile(
-                    leading: const Icon(Icons.sports_tennis),
-                    title: const Text('Match in progress', style: TextStyle(fontWeight: FontWeight.w700)),
-                    subtitle: Text('${live.sideName(0)} vs ${live.sideName(1)}'),
-                    trailing: const Text('RESUME', style: TextStyle(fontWeight: FontWeight.w800)),
-                    onTap: () =>
-                        Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LiveMatchScreen())),
+                color: VeritasColors.navy,
+                child: InkWell(
+                  onTap: () =>
+                      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LiveMatchScreen())),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 16, 12),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.circle, size: 10, color: VeritasColors.ball),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            '${live.sideName(0)} vs ${live.sideName(1)}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        const Text(
+                          'Resume',
+                          style: TextStyle(color: VeritasColors.ball, fontWeight: FontWeight.w800),
+                        ),
+                        const Icon(Icons.chevron_right_rounded, color: VeritasColors.ball),
+                      ],
+                    ),
                   ),
                 ),
               ),

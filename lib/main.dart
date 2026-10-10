@@ -18,10 +18,11 @@ Future<void> main() async {
 /// Provides app state and syncs with the club whenever the app comes back
 /// to the foreground.
 class AppRoot extends StatefulWidget {
-  const AppRoot({super.key, required this.store, required this.sync});
+  const AppRoot({super.key, required this.store, required this.sync, this.showSplash = true});
 
   final AppStore store;
   final ClubSync sync;
+  final bool showSplash;
 
   @override
   State<AppRoot> createState() => _AppRootState();
@@ -52,7 +53,7 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
         ChangeNotifierProvider<AppStore>.value(value: widget.store),
         ChangeNotifierProvider<ClubSync>.value(value: widget.sync),
       ],
-      child: const VeritasTennisApp(),
+      child: VeritasTennisApp(showSplash: widget.showSplash),
     );
   }
 }

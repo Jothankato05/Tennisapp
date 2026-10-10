@@ -96,11 +96,7 @@ class SettingsScreen extends StatelessWidget {
             child: ListTile(
               leading: const Icon(Icons.groups_outlined),
               title: Text(store.club?.name ?? 'Club sync'),
-              subtitle: Text(
-                store.club == null
-                    ? 'Share one ladder and tournaments with your club'
-                    : 'Code ${store.club!.code} · tap to manage',
-              ),
+              subtitle: Text(store.club == null ? 'Not joined' : 'Code ${store.club!.code} · tap to manage'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ClubScreen())),
             ),
@@ -121,16 +117,15 @@ class SettingsScreen extends StatelessWidget {
                 Builder(
                   builder: (tile) => ListTile(
                     leading: const Icon(Icons.upload_outlined),
-                    title: const Text('Back up / share data'),
-                    subtitle: const Text('Save a backup file to Drive, or send it to a teammate or the club secretary'),
+                    title: const Text('Back up'),
+                    subtitle: const Text('Save to Drive or share'),
                     onTap: () => shareBackupFile(tile, store.exportJson()),
                   ),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.file_open_outlined),
-                  title: const Text('Restore from backup file'),
-                  subtitle: const Text('Load a backup received from another phone'),
+                  title: const Text('Restore from file'),
                   onTap: () => _importFile(context),
                 ),
                 const Divider(height: 1),
@@ -166,11 +161,8 @@ class SettingsScreen extends StatelessWidget {
           const Card(
             child: ListTile(
               leading: Icon(Icons.sports_tennis),
-              title: Text('Veritas Tennis 1.1'),
-              subtitle: Text(
-                'Built for the tennis players of Veritas University, Abuja. Works fully offline — '
-                'no account or data connection needed.',
-              ),
+              title: Text('Veritas Tennis 1.2'),
+              subtitle: Text('Made for VUNA Racqueteers · Veritas University, Abuja'),
             ),
           ),
         ],

@@ -19,6 +19,23 @@ class LadderScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Ladder'),
+          actions: [
+            IconButton(
+              tooltip: 'How ratings work',
+              icon: const Icon(Icons.info_outline_rounded),
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('How ratings work'),
+                  content: const Text(
+                    'Everyone starts at $startingRating. Win a ranked singles match to gain points. '
+                    'Beating a higher-rated player earns more.',
+                  ),
+                  actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Got it'))],
+                ),
+              ),
+            ),
+          ],
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Rankings'),
@@ -26,12 +43,12 @@ class LadderScreen extends StatelessWidget {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton.extended(
+        floatingActionButton: FloatingActionButton(
           heroTag: 'add-player',
           onPressed: () =>
               Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const PlayerFormScreen())),
-          icon: const Icon(Icons.person_add_alt_1),
-          label: const Text('Add player'),
+          tooltip: 'Add player',
+          child: const Icon(Icons.person_add_alt_1_rounded),
         ),
         body: const SyncRefresh(child: TabBarView(children: [_Rankings(), _Players()])),
       ),
@@ -50,54 +67,113 @@ class _Rankings extends StatelessWidget {
     final store = context.watch<AppStore>();
     final ladder = store.ladder;
     final theme = Theme.of(context);
+    final podium = ladder.take(3).toList();
+    final rest = ladder.skip(3).toList();
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
       children: [
-        Card(
-          color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Text(
-              'Everyone starts on $startingRating. Win a ranked singles match to gain points; beating a '
-              'higher-rated player earns more. Log every match so the ladder stays fair.',
-              style: theme.textTheme.bodyMedium,
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
         if (ladder.isEmpty)
-          const EmptyState(
-            icon: Icons.leaderboard_outlined,
-            title: 'The ladder is empty',
-            message: 'Add the players you hit with, then score or log singles matches against them.',
-          )
-        else
-          Card(
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              children: [
-                for (final e in ladder) ...[
-                  if (e.rank > 1) const Divider(height: 1),
-                  ListTile(
-                    tileColor: e.player.id == store.meId ? VeritasColors.ball.withValues(alpha: 0.25) : null,
-                    leading: _RankBadge(rank: e.rank),
-                    title: Text(
-                      e.player.id == store.meId ? '${e.player.name} (you)' : e.player.name,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+          const EmptyState(icon: Icons.leaderboard_outlined, title: 'No ranked matches yet')
+        else ...[
+          _Podium(entries: podium, meId: store.meId),
+          if (rest.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Card(
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                children: [
+                  for (final e in rest) ...[
+                    if (e.rank > 4) const Divider(height: 1, indent: 64),
+                    ListTile(
+                      tileColor: e.player.id == store.meId ? VeritasColors.ball.withValues(alpha: 0.12) : null,
+                      shape: const RoundedRectangleBorder(),
+                      leading: _RankBadge(rank: e.rank),
+                      title: Text(e.player.id == store.meId ? '${e.player.name} (you)' : e.player.name),
+                      subtitle: Text('${e.info.wins}–${e.info.losses}'),
+                      trailing: Text(
+                        '${e.info.rating}',
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      onTap: () => openPlayer(context, e.player.id),
                     ),
-                    subtitle: Text('${e.info.wins}W – ${e.info.losses}L · ${e.player.level.label}'),
-                    trailing: Text(
-                      '${e.info.rating}',
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                    ),
-                    onTap: () => openPlayer(context, e.player.id),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
+          ],
+        ],
       ],
+    );
+  }
+}
+
+/// Top three as a podium: 2nd · 1st · 3rd.
+class _Podium extends StatelessWidget {
+  const _Podium({required this.entries, required this.meId});
+
+  final List<LadderEntry> entries;
+  final String? meId;
+
+  @override
+  Widget build(BuildContext context) {
+    final order = [if (entries.length > 1) entries[1], entries[0], if (entries.length > 2) entries[2]];
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 22, 12, 0),
+      decoration: BoxDecoration(gradient: VeritasColors.heroGradient, borderRadius: BorderRadius.circular(28)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          for (final e in order)
+            Expanded(
+              child: GestureDetector(
+                onTap: () => openPlayer(context, e.player.id),
+                child: Column(
+                  children: [
+                    PlayerAvatar(
+                      initials: e.player.initials,
+                      radius: e.rank == 1 ? 30 : 24,
+                      highlight: e.rank == 1 || e.player.id == meId,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      e.player.firstName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      '${e.info.rating}',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.65), fontSize: 12.5),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      height: switch (e.rank) {
+                        1 => 64.0,
+                        2 => 44.0,
+                        _ => 30.0,
+                      },
+                      margin: const EdgeInsets.symmetric(horizontal: 6),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: e.rank == 1 ? VeritasColors.ball : Colors.white.withValues(alpha: 0.12),
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                      ),
+                      child: Text(
+                        '${e.rank}',
+                        style: TextStyle(
+                          color: e.rank == 1 ? VeritasColors.navy : Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -108,12 +184,13 @@ class _RankBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = {1: const Color(0xFFF5D76E), 2: const Color(0xFFD9DEE5), 3: const Color(0xFFE7B98A)};
-    return CircleAvatar(
-      radius: 18,
-      backgroundColor: colors[rank] ?? Theme.of(context).colorScheme.surfaceContainerHighest,
-      foregroundColor: rank <= 3 ? Colors.black87 : null,
-      child: Text('$rank', style: const TextStyle(fontWeight: FontWeight.w800)),
+    return SizedBox(
+      width: 32,
+      child: Text(
+        '$rank',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurfaceVariant),
+      ),
     );
   }
 }
@@ -163,11 +240,7 @@ class _PlayersState extends State<_Players> {
             ),
           ),
         if (store.players.length <= 1)
-          const EmptyState(
-            icon: Icons.group_add_outlined,
-            title: 'Build your club list',
-            message: 'Add the students and staff you play with so you can track results and head-to-heads.',
-          ),
+          const EmptyState(icon: Icons.group_add_outlined, title: 'Add your playing partners'),
       ],
     );
   }

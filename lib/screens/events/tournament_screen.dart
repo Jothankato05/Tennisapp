@@ -75,7 +75,7 @@ class TournamentScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
         children: [
           Text(
-            '${t.type.label} · ${t.playerIds.length} players · ${t.venue}',
+            '${t.type.label} · ${t.playerIds.length} players',
             style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           if (champion != null) ...[

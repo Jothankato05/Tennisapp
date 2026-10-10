@@ -15,16 +15,16 @@ void main() {
     final store = await AppStore.load(await SharedPreferences.getInstance());
     final sync = ClubSync(store, SupabaseClubApi());
     addTearDown(sync.dispose);
-    await tester.pumpWidget(AppRoot(store: store, sync: sync));
+    await tester.pumpWidget(AppRoot(store: store, sync: sync, showSplash: false));
 
-    expect(find.text('Create your player profile'), findsOneWidget);
+    expect(find.text('Welcome'), findsOneWidget);
     await tester.enterText(find.byType(TextFormField).first, 'Ada Obi');
     await tester.tap(find.text("Let's play"));
     await tester.pumpAndSettle();
     expect(find.text('Ada'), findsOneWidget);
 
     // Start a match against a guest.
-    await tester.tap(find.text('Score match'));
+    await tester.tap(find.text('Score'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Player B'));
     await tester.pumpAndSettle();

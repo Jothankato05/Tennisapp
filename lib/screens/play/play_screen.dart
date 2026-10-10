@@ -46,8 +46,7 @@ class _PlayScreenState extends State<PlayScreen> {
                 Expanded(
                   child: _ActionCard(
                     icon: Icons.scoreboard,
-                    title: store.liveMatch != null ? 'Resume match' : 'Score live',
-                    subtitle: 'Keep score point by point on court',
+                    title: store.liveMatch != null ? 'Resume' : 'Score live',
                     color: VeritasColors.navy,
                     onTap: () => openNewMatch(context),
                   ),
@@ -57,7 +56,6 @@ class _PlayScreenState extends State<PlayScreen> {
                   child: _ActionCard(
                     icon: Icons.edit_note,
                     title: 'Log result',
-                    subtitle: 'Already played? Enter the score',
                     color: VeritasColors.court,
                     onTap: () =>
                         Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LogResultScreen())),
@@ -68,10 +66,7 @@ class _PlayScreenState extends State<PlayScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                Text(
-                  'Match history',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                ),
+                Text('History', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                 const Spacer(),
                 SegmentedButton<bool>(
                   showSelectedIcon: false,
@@ -87,11 +82,7 @@ class _PlayScreenState extends State<PlayScreen> {
             ),
             const SizedBox(height: 10),
             if (matches.isEmpty)
-              const EmptyState(
-                icon: Icons.sports_tennis,
-                title: 'No matches yet',
-                message: 'Score your next match live, or log one you have already played.',
-              )
+              const EmptyState(icon: Icons.sports_tennis, title: 'No matches yet')
             else
               for (final m in matches)
                 Padding(
@@ -112,17 +103,10 @@ class _PlayScreenState extends State<PlayScreen> {
 }
 
 class _ActionCard extends StatelessWidget {
-  const _ActionCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.onTap,
-  });
+  const _ActionCard({required this.icon, required this.title, required this.color, required this.onTap});
 
   final IconData icon;
   final String title;
-  final String subtitle;
   final Color color;
   final VoidCallback onTap;
 
@@ -130,23 +114,21 @@ class _ActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: color,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(24),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(icon, color: VeritasColors.ball, size: 30),
-              const SizedBox(height: 10),
+              const SizedBox(height: 22),
               Text(
                 title,
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16),
               ),
-              const SizedBox(height: 2),
-              Text(subtitle, style: const TextStyle(color: Color(0xFFD5DEEA), fontSize: 12.5)),
             ],
           ),
         ),

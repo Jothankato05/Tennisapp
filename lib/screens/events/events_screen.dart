@@ -23,25 +23,17 @@ class EventsScreen extends StatelessWidget {
         heroTag: 'new-tournament',
         onPressed: () =>
             Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const TournamentFormScreen())),
-        icon: const Icon(Icons.add),
-        label: const Text('New tournament'),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New event'),
       ),
       body: SyncRefresh(
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
           children: [
-            Text(
-              'Run hall, departmental or club tournaments: build the draw, score matches live and share results.',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             if (store.tournaments.isEmpty)
-              const EmptyState(
-                icon: Icons.emoji_events_outlined,
-                title: 'No tournaments yet',
-                message: 'Create a knockout or round robin with players from your club list.',
-              )
+              const EmptyState(icon: Icons.emoji_events_outlined, title: 'No events yet')
             else
               for (final t in store.tournaments)
                 Padding(

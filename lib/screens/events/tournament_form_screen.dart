@@ -103,12 +103,7 @@ class _TournamentFormScreenState extends State<TournamentFormScreen> {
               }
             }),
           ),
-          if (store.players.length < 2)
-            const EmptyState(
-              icon: Icons.group_add_outlined,
-              title: 'Add players first',
-              message: 'Go to Ladder › Add player to build your club list.',
-            ),
+          if (store.players.length < 2) const EmptyState(icon: Icons.group_add_outlined, title: 'Add players first'),
           for (final p in store.players)
             CheckboxListTile(
               value: _selected.contains(p.id),

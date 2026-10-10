@@ -22,6 +22,14 @@ whenever there is a connection.
 | **Club sync** | A captain creates the club once and shares its code (e.g. `KQ7MZ-3HXPA`) in the WhatsApp group. Members join with the code; players, results, the ladder and tournaments sync across everyone's phones, while practice logs stay private. Players with the same name are merged when you join, any other duplicates can be merged from a profile, and logging a result that is already saved triggers a warning so the ladder doesn't count it twice. Pull down on Play, Ladder or Events to sync now. |
 | **Settings** | Edit your profile, save a backup file of all data (to Google Drive, WhatsApp, email…), restore a backup on another phone, or erase everything. |
 
+## Design
+
+The colours (navy `#021E34`, green `#1C8A4C`, gold `#DFAD16`, cream `#F5E6C5`) come from the VUNA Racqueteers
+badge. The typeface is Plus Jakarta Sans (SIL Open Font License, see `assets/fonts/OFL.txt`). The app opens with
+an animated, code-drawn tennis ball that bounces and turns into a medallion revealing the Veritas University
+crest (`lib/screens/splash_screen.dart`). The Veritas University crest and the VUNA Racqueteers badge in
+`assets/brand/` belong to their owners.
+
 ## Getting started
 
 Requires the [Flutter SDK](https://docs.flutter.dev/get-started/install) 3.47 or newer (Dart 3.13).

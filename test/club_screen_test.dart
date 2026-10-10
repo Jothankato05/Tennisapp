@@ -21,7 +21,7 @@ void main() {
     store.setMe(Player(id: 'me', name: 'Ada Obi', createdAt: DateTime(2026)));
     final sync = ClubSync(store, server, debounce: const Duration(days: 1));
     addTearDown(sync.dispose);
-    await tester.pumpWidget(AppRoot(store: store, sync: sync));
+    await tester.pumpWidget(AppRoot(store: store, sync: sync, showSplash: false));
 
     await tester.tap(find.byIcon(Icons.cloud_off_outlined));
     await tester.pumpAndSettle();

@@ -239,7 +239,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
                           Expanded(
                             child: OutlinedButton.icon(
                               onPressed: () => _play(live, const PointEvent(PointKind.ace)),
-                              icon: const Icon(Icons.bolt),
+                              icon: const Icon(Icons.bolt, size: 18),
                               label: const Text('Ace'),
                             ),
                           ),
@@ -247,8 +247,8 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
                           Expanded(
                             child: OutlinedButton.icon(
                               onPressed: () => _play(live, const PointEvent(PointKind.doubleFault)),
-                              icon: const Icon(Icons.close),
-                              label: const Text('Double fault'),
+                              icon: const Icon(Icons.close, size: 18),
+                              label: const FittedBox(child: Text('Double fault')),
                             ),
                           ),
                         ],

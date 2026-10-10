@@ -213,7 +213,7 @@ class PlayerScreen extends StatelessWidget {
               StatTile(value: '${stats.tiebreaksWon}–${stats.tiebreaksLost}', label: 'Tiebreaks'),
               StatTile(
                 value: stats.breakPointChances == 0 ? '—' : fmtPercent(stats.breakPointsWon / stats.breakPointChances),
-                label: 'Break points won (live)',
+                label: 'Break points',
               ),
             ],
           ),
@@ -247,7 +247,7 @@ class PlayerScreen extends StatelessWidget {
           ],
           SectionHeader('Matches (${matches.length})'),
           if (matches.isEmpty)
-            const EmptyState(icon: Icons.sports_tennis, title: 'No matches yet', message: 'Results will show up here.')
+            const EmptyState(icon: Icons.sports_tennis, title: 'No matches yet')
           else
             for (final m in matches.take(20))
               Padding(
