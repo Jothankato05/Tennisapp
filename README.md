@@ -51,6 +51,9 @@ a GitHub Release with the APKs attached, so students can download from one link.
 
 ### Signing for the Google Play Store
 
+**Publishing step by step:** see [PLAY_STORE.md](PLAY_STORE.md) for the store listing, graphics, privacy policy
+and every Play Console form answer.
+
 Without a key, release builds are signed with the debug key. That is fine for
 sending the APK to students directly, but Google Play needs your own upload key:
 

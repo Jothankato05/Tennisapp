@@ -91,7 +91,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 _QuickAction(
                   icon: Icons.emoji_events_outlined,
-                  label: 'Tournament',
+                  label: 'New event',
                   onTap: () => push(const TournamentFormScreen()),
                 ),
               ],

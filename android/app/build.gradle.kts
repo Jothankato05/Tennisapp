@@ -56,6 +56,12 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName(if (hasReleaseKey) "release" else "debug")
+            // Set ORG_GRADLE_PROJECT_noDebugSymbols=true to leave native debug
+            // symbols out of the app bundle (about 30 MB smaller; Play crash
+            // reports will then show unsymbolised native stack traces).
+            if (project.hasProperty("noDebugSymbols")) {
+                ndk { debugSymbolLevel = "NONE" }
+            }
         }
     }
 }
