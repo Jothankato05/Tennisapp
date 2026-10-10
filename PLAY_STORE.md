@@ -8,7 +8,7 @@ works from a phone browser, but a laptop is easier.
 
 | Item | Where |
 | --- | --- |
-| Signed app bundle | `VeritasTennis-1.1.0-playstore.aab` (sent in the chat; not stored in GitHub) |
+| Signed app bundle | `VeritasTennis-1.2.0-playstore.aab` (sent in the chat; not stored in GitHub) |
 | Upload key + passwords | `veritas-tennis-upload.jks` and `upload-key-KEEP-SECRET.txt` (sent in the chat). Save both privately, e.g. in Google Drive. **Never** put them in GitHub. |
 | Store text | [`store/listing.md`](store/listing.md) |
 | Icon, feature graphic, screenshots | [`store/`](store) |
@@ -88,8 +88,8 @@ Category: **Sports**. Add your contact email.
 Testing › **Internal testing** › Create new release:
 
 1. When asked about app signing, keep **"Let Google manage and protect your app signing key"** (recommended).
-2. Upload `VeritasTennis-1.1.0-playstore.aab`.
-3. Release name `1.1.0`. Release notes: *First release: live scoring, ladder, tournaments, club sync and training.*
+2. Upload `VeritasTennis-1.2.0-playstore.aab`.
+3. Release name `1.2.0`. Release notes: *First release: live scoring, ladder, tournaments, club sync and training.*
 4. Save, review, **Start rollout**. Add your own Gmail under **Testers**, open the opt-in link on your phone
    and install from the Play Store. This usually works within minutes.
 
