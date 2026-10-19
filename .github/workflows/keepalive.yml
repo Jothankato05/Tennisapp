@@ -1,0 +1,28 @@
+name: Keep club sync awake
+
+# Free Supabase projects pause after about a week without activity, which
+# stops club sync. A tiny daily request keeps the project active.
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping the club sync API
+        env:
+          # Public publishable key, the same one shipped inside the app.
+          SUPABASE_URL: https://zgnpftbegetnqfriwaoo.supabase.co
+          SUPABASE_KEY: sb_publishable_MMJtDxFBfEzptX-ueF7i_g_IHoOXBNu
+        run: |
+          status=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$SUPABASE_URL/rest/v1/rpc/get_club" \
+            -H "apikey: $SUPABASE_KEY" -H 'Content-Type: application/json' -d '{"p_code":"KEEPALIVE"}')
+          echo "HTTP $status"
+          if [ "$status" != "200" ]; then
+            echo "::warning::Club sync API returned $status. The Supabase project may be paused: restore it from the Supabase dashboard."
+          fi
