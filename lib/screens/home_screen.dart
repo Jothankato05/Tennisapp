@@ -7,6 +7,7 @@ import '../logic/bracket.dart';
 import '../theme.dart';
 import '../util/format.dart';
 import '../widgets/common.dart';
+import '../widgets/install_banner.dart';
 import '../widgets/match_widgets.dart';
 import '../widgets/sync_widgets.dart';
 import 'club_screen.dart';
@@ -73,6 +74,7 @@ class HomeScreen extends StatelessWidget {
               streak: stats.streak,
               onTap: () => push(PlayerScreen(playerId: me.id)),
             ),
+            const InstallBanner(),
             const SizedBox(height: 22),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

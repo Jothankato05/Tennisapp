@@ -49,3 +49,6 @@ app.*.map.json
 
 # Local agent tooling state
 .anchor/
+
+# Flutter SDK cloned by the Vercel build
+.flutter/
